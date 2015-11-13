@@ -14,7 +14,7 @@ int main()
 
 	Inpaint test(Src, Mask);
 	test.BuildPyr();
-
+	 
 	waitKey();
 
 	return 0;
