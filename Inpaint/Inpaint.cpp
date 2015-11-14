@@ -19,7 +19,7 @@ Inpaint::Inpaint(const Mat& src, const Mat& mask)
 
 void Inpaint::BuildPyr()
 {
-	// Build gaussian pyramid
+	// Build gaussian pyramid 01
 	buildPyramid(srcImg.front(), srcImg, PryLevel);
 	buildPyramid(maskImg.front(), maskImg, PryLevel);
 	buildPyramid(offsetMap.front(), offsetMap, PryLevel);
