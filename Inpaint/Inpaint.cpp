@@ -132,6 +132,6 @@ void Inpaint::ExpectationMaximization(Mat& src, const Mat& mask, Mat& offset, in
 
 	for (int i = 0; i < iterEM; i++)
 	{
-
+		
 	}
 }
