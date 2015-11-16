@@ -13,7 +13,8 @@ int main()
 	imshow("mask", Mask);
 
 	Inpaint test(Src, Mask);
-	test.BuildPyr();
+	test.Run();
+	//test.PrintMaskValue();
 	 
 	waitKey();
 
