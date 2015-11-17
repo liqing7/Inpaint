@@ -36,6 +36,7 @@ private :
 	void Iteration(Mat& src, const Mat& mask, Mat& offset, int iter);
 	void Propagation(const Mat& src, Mat& offset, int row, int col, int dir);
 	int GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three);
+	void RandomSearch(const Mat& src, Mat& offset, int row, int col);
 
 	vector<Mat> srcImg;
 	vector<Mat> maskImg;
