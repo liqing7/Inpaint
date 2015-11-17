@@ -184,6 +184,7 @@ void Inpaint::Iteration(Mat& src, const Mat& mask, Mat& offset, int iter)
 			if (255 == (int)mask.at<uchar>(i, j))
 			{
 				Propagation(src, offset, i, j, iter);
+				RandomSearch();
 			}
 		}
 }
@@ -201,7 +202,7 @@ void Inpaint::Propagation(const Mat& src, Mat& offset, int row, int col, int dir
 		if (row - 1 >= 0)
 			UpPatch = GetPatch(src, offset.at<Vec2f>(row - 1, col)[0] + 1, offset.at<Vec2f>(row - 1, col)[1] + 1);
 
-		int location = GetMinPatch(DstPatch, SrcPatch, LeftPatch, RightPatch);
+		int location = GetMinPatch(DstPatch, SrcPatch, LeftPatch, UpPatch);
 
 		switch (location)
 		{
@@ -217,22 +218,22 @@ void Inpaint::Propagation(const Mat& src, Mat& offset, int row, int col, int dir
 	}
 	else 
 	{
-		if (col - 1 >= 0)
-			LeftPatch = GetPatch(src, offset.at<Vec2f>(row, col - 1)[0], offset.at<Vec2f>(row, col - 1)[1] + 1);
-		if (row - 1 >= 0)
-			UpPatch = GetPatch(src, offset.at<Vec2f>(row - 1, col)[0] + 1, offset.at<Vec2f>(row - 1, col)[1] + 1);
+		if (col + 1 < src.cols)
+			RightPatch = GetPatch(src, offset.at<Vec2f>(row, col + 1)[0], offset.at<Vec2f>(row, col + 1)[1] - 1);
+		if (row + 1 < src.rows)
+			DownPatch = GetPatch(src, offset.at<Vec2f>(row + 1, col)[0] - 1, offset.at<Vec2f>(row + 1, col)[1] - 1);
 
-		int location = GetMinPatch(DstPatch, SrcPatch, LeftPatch, RightPatch);
+		int location = GetMinPatch(DstPatch, SrcPatch, RightPatch, DownPatch);
 
 		switch (location)
 		{
 		case 2:
-			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row, col - 1)[0];
-			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row, col - 1)[1] + 1;
+			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row, col + 1)[0];
+			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row, col + 1)[1] - 1;
 			break;
 		case 3:
-			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row - 1, col)[0] + 1;
-			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row - 1, col)[1];
+			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row + 1, col)[0] - 1;
+			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row + 1, col)[1];
 			break;
 		}
 	}
