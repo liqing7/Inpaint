@@ -46,11 +46,11 @@ void Inpaint::Run()
 	BuildPyr();
 
 	vector<Mat>::iterator srcItBg = srcImg.begin();
-	vector<Mat>::iterator srcItEnd = srcImg.end();
+	vector<Mat>::iterator srcItEnd = srcImg.end()-1;
 	vector<Mat>::iterator maskItBg = maskImg.begin();
-	vector<Mat>::iterator maskItEnd = maskImg.end();
+	vector<Mat>::iterator maskItEnd = maskImg.end()-1;
 	vector<Mat>::iterator offsetMapBg = offsetMap.begin();
-	vector<Mat>::iterator offsetMapEnd = offsetMap.end();
+	vector<Mat>::iterator offsetMapEnd = offsetMap.end()-1;
 
 	int index = srcImg.size();
 	for (; srcItEnd > srcItBg; srcItEnd--, maskItEnd--, offsetMapEnd--, index--)
@@ -60,12 +60,17 @@ void Inpaint::Run()
 		Mat offset = *offsetMapEnd;
 
 		cout << "Pry " << index << endl;
-		if (srcItEnd == srcImg.end())
+		if (srcItEnd == srcImg.end() - 1)
+		{
 			// Initialize offsetmap with random values
+			targetImg = src.clone();
 			RandomizeOffsetMap(src, mask, offset);
+		}
 		else
+		{
 			// Initialize offsetmap with the small offsetmap
 			InitOffsetMap(src, mask, *(offsetMapEnd+1), offset);
+		}
 
 		//EM-like
 		ExpectationMaximization(src, mask, offset, index);
@@ -132,6 +137,118 @@ void Inpaint::ExpectationMaximization(Mat& src, const Mat& mask, Mat& offset, in
 
 	for (int i = 0; i < iterEM; i++)
 	{
-		
+		for (int j = 0; j < iterNNF; j++)
+			Iteration(src, mask, offset, j);
 	}
+}
+
+Mat Inpaint::GetPatch(const Mat &Src, int row, int col)
+{
+	int row_begin = row - (PatchSize / 2) >= 0 ? row - (PatchSize / 2) : 0;
+	int row_end =
+		row + (PatchSize / 2) <= Src.rows - 1 ?
+		row + (PatchSize / 2) : Src.rows - 1;
+
+	int col_begin = col - (PatchSize / 2) >= 0 ? col - (PatchSize / 2) : 0;
+	int col_end =
+		col + (PatchSize / 2) <= Src.cols - 1 ?
+		col + (PatchSize / 2) : Src.cols - 1;
+
+	return Src(Range(row_begin, row_end + 1), Range(col_begin, col_end + 1));
+}
+
+int Inpaint::Distance(const Mat &Dst, const Mat &Src)
+{
+	int distance = 0;
+
+	for (int i = 0; i < Dst.rows; i++)
+	{
+		for (int j = 0; j < Dst.cols; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				int tem = Src.at < Vec3b > (i, j)[k] - Dst.at < Vec3b > (i, j)[k];
+				distance += tem * tem;
+			}
+		}
+	}
+
+	return distance;
+}
+
+void Inpaint::Iteration(Mat& src, const Mat& mask, Mat& offset, int iter)
+{
+	for (int i = 0; i < src.rows; i++)
+		for (int j = 0; j < src.cols; j++)
+		{
+			if (255 == (int)mask.at<uchar>(i, j))
+			{
+				Propagation(src, offset, i, j, iter);
+			}
+		}
+}
+
+void Inpaint::Propagation(const Mat& src, Mat& offset, int row, int col, int dir)
+{
+	Mat DstPatch = GetPatch(targetImg, row, col);
+	Mat SrcPatch = GetPatch(src, offset.at<Vec2f>(row, col)[0], offset.at<Vec2f>(row, col)[1]);
+	Mat LeftPatch, RightPatch, UpPatch, DownPatch;
+
+	if (0 == dir % 2)
+	{
+		if (col - 1 >= 0)
+			LeftPatch = GetPatch(src, offset.at<Vec2f>(row, col - 1)[0], offset.at<Vec2f>(row, col - 1)[1] + 1);
+		if (row - 1 >= 0)
+			UpPatch = GetPatch(src, offset.at<Vec2f>(row - 1, col)[0] + 1, offset.at<Vec2f>(row - 1, col)[1] + 1);
+
+		int location = GetMinPatch(DstPatch, SrcPatch, LeftPatch, RightPatch);
+
+		switch (location)
+		{
+		case 2:
+			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row, col - 1)[0];
+			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row, col - 1)[1] + 1;
+			break;
+		case 3:
+			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row - 1, col)[0] + 1;
+			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row - 1, col)[1];
+			break;
+		}
+	}
+	else 
+	{
+		if (col - 1 >= 0)
+			LeftPatch = GetPatch(src, offset.at<Vec2f>(row, col - 1)[0], offset.at<Vec2f>(row, col - 1)[1] + 1);
+		if (row - 1 >= 0)
+			UpPatch = GetPatch(src, offset.at<Vec2f>(row - 1, col)[0] + 1, offset.at<Vec2f>(row - 1, col)[1] + 1);
+
+		int location = GetMinPatch(DstPatch, SrcPatch, LeftPatch, RightPatch);
+
+		switch (location)
+		{
+		case 2:
+			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row, col - 1)[0];
+			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row, col - 1)[1] + 1;
+			break;
+		case 3:
+			offset.at < Vec2f > (row, col)[0] = offset.at < Vec2f > (row - 1, col)[0] + 1;
+			offset.at < Vec2f > (row, col)[1] = offset.at < Vec2f > (row - 1, col)[1];
+			break;
+		}
+	}
+}
+
+int Inpaint::GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three)
+{
+	int dis1 = Distance(src, one);
+	int dis2 = Distance(src, two);
+	int dis3 = Distance(src, three);
+
+	if (dis1 <= dis2 && dis1 <= dis3)
+		return 1;
+
+	if (dis2 <= dis1 && dis2 <= dis3)
+		return 2;
+
+	return 3;
 }
