@@ -19,7 +19,7 @@ Inpaint::Inpaint(const Mat& src, const Mat& mask)
 
 void Inpaint::BuildPyr()
 {
-	// Build gaussian pyramid
+	// Build gaussian pyramid 
 	buildPyramid(srcImg.front(), srcImg, PryLevel);
 	buildPyramid(maskImg.front(), maskImg, PryLevel);
 	buildPyramid(offsetMap.front(), offsetMap, PryLevel);
@@ -252,4 +252,8 @@ int Inpaint::GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const M
 		return 2;
 
 	return 3;
+}
+
+void Inpaint::RandomSearch(const Mat& src, Mat& offset, int row, int col)
+{
 }
