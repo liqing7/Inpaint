@@ -256,4 +256,5 @@ int Inpaint::GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const M
 
 void Inpaint::RandomSearch(const Mat& src, Mat& offset, int row, int col)
 {
+
 }
