@@ -256,5 +256,26 @@ int Inpaint::GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const M
 
 void Inpaint::RandomSearch(const Mat& src, Mat& offset, int row, int col)
 {
+	Mat DstPatch = GetPatch(targetImg, row, col);
+	Mat SrcPatch = GetPatch(src, offset.at<Vec2f>(row, col)[0], offset.at<Vec2f>(row, col)[1]);
 
+	int w = min(src.cols, src.rows);
+	
+	while (w > 0)
+	{
+		int x = rand() % w;
+		int y = rand() % w;
+
+		Mat candidate = GetPatch(src, x, y);
+
+		int dis1 = Distance(SrcPatch, DstPatch);
+		int dis2 = Distance(SrcPatch, candidate);
+
+		if (dis2 < dis1)
+		{
+			offset.at < Vec2f > (row, col)[0] = x;
+			offset.at < Vec2f > (row, col)[1] = y;
+		}
+		w /= 2;
+	}
 }
