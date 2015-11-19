@@ -137,9 +137,43 @@ void Inpaint::ExpectationMaximization(Mat& src, const Mat& mask, Mat& offset, in
 
 	for (int i = 0; i < iterEM; i++)
 	{
+		// PatchMatch
 		for (int j = 0; j < iterNNF; j++)
 			Iteration(src, mask, offset, j);
+
+		// Form a target image
+		// New a vote array
+		int ***vote = NewVoteArray(src.rows, src.cols);
+
+		VoteForTarget(src, mask, offset);
+		//DeleteVoteArray(vote);
 	}
+}
+
+void Inpaint::VoteForTarget(const Mat& src, const Mat& mask, const Mat& offset)
+{
+	targetImg = src.clone();
+
+	for (int i = 0; i < src.rows; i++)
+		for (int j = 0; j < src.cols; j++)
+		{
+
+		}
+}
+
+int*** NewVoteArray(int rows, int cols)
+{
+	int ***vote = new int**[rows];
+	for (int k = 0; k < rows; k++)
+		*(vote + k) = new int*[cols];
+	for (int k = 0; k < rows; k++)
+		for (int l = 0; l < cols; l++)
+			*(*(vote + k) + l) = new int[4];
+}
+
+void DeleteVoteArray(int*** vote)
+{
+
 }
 
 Mat Inpaint::GetPatch(const Mat &Src, int row, int col)
@@ -184,7 +218,7 @@ void Inpaint::Iteration(Mat& src, const Mat& mask, Mat& offset, int iter)
 			if (255 == (int)mask.at<uchar>(i, j))
 			{
 				Propagation(src, offset, i, j, iter);
-				RandomSearch();
+				RandomSearch(src, offset, i, j);
 			}
 		}
 }

@@ -37,6 +37,7 @@ private :
 	void Propagation(const Mat& src, Mat& offset, int row, int col, int dir);
 	int GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three);
 	void RandomSearch(const Mat& src, Mat& offset, int row, int col);
+	void VoteForTarget(const Mat& src, const Mat& mask, const Mat& offset);
 
 	vector<Mat> srcImg;
 	vector<Mat> maskImg;
