@@ -38,10 +38,13 @@ private :
 	int GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three);
 	void RandomSearch(const Mat& src, Mat& offset, int row, int col);
 	void VoteForTarget(const Mat& src, const Mat& mask, const Mat& offset);
+	void BulidSimilarity();
 
 	vector<Mat> srcImg;
 	vector<Mat> maskImg;
 	vector<Mat> offsetMap;
 	Mat targetImg;
+
+	double *similarity;
 };
 #endif

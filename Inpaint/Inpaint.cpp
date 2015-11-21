@@ -15,6 +15,27 @@ Inpaint::Inpaint(const Mat& src, const Mat& mask)
 	srcImg.push_back(src.clone());
 	maskImg.push_back(mask.clone());
 	offsetMap.push_back(Mat(src.size(), CV_32FC2, Scalar::all(0)));
+	BulidSimilarity();
+}
+
+void Inpaint::BulidSimilarity()
+{
+	similarity = new double[MaxDis + 1];
+	double base[] = {1.0, 0.99, 0.96, 0.83, 0.38, 0.11, 0.02, 0.005, 0.0006, 0.0001, 0 };
+
+	// stretch base array 
+	for(int i = 0; i < MaxDis + 1; i++) 
+	{
+		double t = (double)i / (MaxDis + 1);
+
+		// interpolate from base array values
+		int j = (int)(100 * t), k = j + 1;
+		double vj = (j < 10) ? base[j] : 0;
+		double vk = (k < 10) ? base[k] : 0;
+			
+		double v = vj + (100*t-j)*(vk-vj);
+		similarity[i] = v;
+	}
 }
 
 void Inpaint::BuildPyr()
@@ -85,8 +106,8 @@ void Inpaint::RandomizeOffsetMap(const Mat& src, const Mat& mask, Mat& offset)
 			if (0 == (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
-				offset.at<Vec2f>(i, j)[0] = 0;
-				offset.at<Vec2f>(i, j)[1] = 0;
+				offset.at<Vec2f>(i, j)[0] = i;
+				offset.at<Vec2f>(i, j)[1] = j;
 			}
 			else 
 			{
