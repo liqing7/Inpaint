@@ -30,16 +30,19 @@ private :
 	void BuildPyr();
 	void RandomizeOffsetMap(const Mat& src, const Mat& mask, Mat& offset);
 	void InitOffsetMap(const Mat& src, const Mat& mask, const Mat& preOff, Mat& offset);
+	void InitOffsetDis(const Mat& src, const Mat& mask, Mat& offset);
 	void ExpectationMaximization(Mat& src, const Mat& mask, Mat& offset, int level);
 	Mat GetPatch(const Mat &Src, int row, int col);
 	int Distance(const Mat &Dst, const Mat &Src);
-	int Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, int yt);
+	int Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, int yt, const Mat& mask);
 	void Iteration(Mat& src, const Mat& mask, Mat& offset, int iter);
-	void Propagation(const Mat& src, Mat& offset, int row, int col, int dir);
+	void Propagation(const Mat& src, Mat& offset, int row, int col, int dir, const Mat& mask);
 	int GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three);
-	void RandomSearch(const Mat& src, Mat& offset, int row, int col);
-	void VoteForTarget(const Mat& src, const Mat& mask, const Mat& offset);
+	void RandomSearch(const Mat& src, Mat& offset, int row, int col, const Mat& mask);
+	void VoteForTarget(const Mat& src, const Mat& mask, const Mat& offset, bool sourceToTarget, int***vote);
+	void FormTargetImg(const Mat& src, int ***vote);
 	void BulidSimilarity();
+	int*** NewVoteArray(int rows, int cols);
 
 	vector<Mat> srcImg;
 	vector<Mat> maskImg;
