@@ -33,6 +33,7 @@ private :
 	void ExpectationMaximization(Mat& src, const Mat& mask, Mat& offset, int level);
 	Mat GetPatch(const Mat &Src, int row, int col);
 	int Distance(const Mat &Dst, const Mat &Src);
+	int Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, int yt);
 	void Iteration(Mat& src, const Mat& mask, Mat& offset, int iter);
 	void Propagation(const Mat& src, Mat& offset, int row, int col, int dir);
 	int GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three);

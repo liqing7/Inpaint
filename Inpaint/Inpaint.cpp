@@ -14,7 +14,7 @@ Inpaint::Inpaint(const Mat& src, const Mat& mask)
 
 	srcImg.push_back(src.clone());
 	maskImg.push_back(mask.clone());
-	offsetMap.push_back(Mat(src.size(), CV_32FC2, Scalar::all(0)));
+	offsetMap.push_back(Mat(src.size(), CV_32FC3, Scalar::all(0)));
 	BulidSimilarity();
 }
 
@@ -231,6 +231,18 @@ int Inpaint::Distance(const Mat &Dst, const Mat &Src)
 	return distance;
 }
 
+int Inpaint::Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, int yt)
+{
+	int dis = 0, wsum = 0, ssdmax = 255 * 255 * PatchSize * PatchSize;
+
+	for (int dy = -(PatchSize / 2); dy <= PatchSize / 2; dy++)
+		for (int dx = -(PatchSize / 2); dx <= PatchSize / 2; dx++)
+		{
+
+		}
+
+
+}
 void Inpaint::Iteration(Mat& src, const Mat& mask, Mat& offset, int iter)
 {
 	for (int i = 0; i < src.rows; i++)
