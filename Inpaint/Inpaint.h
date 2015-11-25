@@ -25,7 +25,8 @@ public :
 
 	// Test
 	void PrintMaskValue();
-
+	void PrintMaskValue(const Mat& mask);
+	void PrintOffsetMap(const Mat& offset);
 private :
 	void BuildPyr();
 	void RandomizeOffsetMap(const Mat& src, const Mat& mask, Mat& offset);
@@ -37,8 +38,10 @@ private :
 	int Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, int yt, const Mat& mask);
 	void Iteration(Mat& src, const Mat& mask, Mat& offset, int iter);
 	void Propagation(const Mat& src, Mat& offset, int row, int col, int dir, const Mat& mask);
+	void Propagation_Backup(const Mat& src, Mat& offset, int row, int col, int dir, const Mat& mask);
 	int GetMinPatch(const Mat& src, const Mat& one, const Mat& two, const Mat& three);
 	void RandomSearch(const Mat& src, Mat& offset, int row, int col, const Mat& mask);
+	void RandomSearch_Backup(const Mat& src, Mat& offset, int row, int col, const Mat& mask);
 	void VoteForTarget(const Mat& src, const Mat& mask, const Mat& offset, bool sourceToTarget, int***vote);
 	void FormTargetImg(const Mat& src, int ***vote);
 	void BulidSimilarity();
