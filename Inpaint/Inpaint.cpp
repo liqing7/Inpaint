@@ -118,11 +118,11 @@ void Inpaint::Run()
 
 void Inpaint::RandomizeOffsetMap(const Mat& src, const Mat& mask, Mat& offset)
 {
-	//PrintMaskValue(mask);
+	PrintMaskValue(mask);
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (0 == (int)mask.at<uchar>(i, j))
+			if (100 >= (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
 				offset.at<Vec3f>(i, j)[0] = i;
@@ -157,7 +157,7 @@ void Inpaint::InitOffsetMap(const Mat& src, const Mat& mask, const Mat& preOff, 
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (0 == (int)mask.at<uchar>(i, j))
+			if (100 >= (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
 				offset.at<Vec3f>(i, j)[0] = i;
@@ -181,7 +181,7 @@ void Inpaint::InitOffsetDis(const Mat& src, const Mat& mask, Mat& offset)
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (0 == (int)mask.at<uchar>(i, j))
+			if (100 >= (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
 				offset.at<Vec3f>(i, j)[0] = i;
@@ -213,11 +213,11 @@ void Inpaint::ExpectationMaximization(Mat& src, const Mat& mask, Mat& offset, in
 	for (int i = 0; i < iterEM; i++)
 	{
 		cout << "ITER " << i << endl;
-		//PrintOffsetMap(offset);
+		PrintOffsetMap(offset);
 		// PatchMatch
 		for (int j = 0; j < iterNNF; j++)
 			Iteration(src, mask, offset, j);
-
+		PrintOffsetMap(offset);
 		// Form a target image
 		// New a vote array
 		int ***vote = NewVoteArray(src.rows, src.cols);
