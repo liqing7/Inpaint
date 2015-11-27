@@ -154,6 +154,8 @@ void Inpaint::InitOffsetMap(const Mat& src, const Mat& mask, const Mat& preOff, 
 	int fx = offset.rows / preOff.rows;
 	int fy = offset.cols / preOff.cols;
 
+	fx = fx == 1 ? 2 : fx;
+	fy = fy == 1 ? 2 : fy;
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
@@ -193,7 +195,7 @@ void Inpaint::InitOffsetDis(const Mat& src, const Mat& mask, Mat& offset)
 			offset.at<Vec3f>(i, j)[2] = Distance(src, i, j, targetImg, offset.at<Vec3f>(i, j)[0], offset.at<Vec3f>(i, j)[1], mask);
 
 			int iter = 0, maxretry = 20;
-			while (offset.at<Vec3f>(i, j)[2] == MaxDis && iter < maxretry)
+			while (offset.at<Vec3f>(i, j)[2] > 8000 && iter < maxretry)
 			{
 				iter++;
 				offset.at<Vec3f>(i, j)[0] = rand() % src.rows;
@@ -350,7 +352,7 @@ int Inpaint::Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, in
 			if (xks < 1 || xks >= Src.rows - 1) {dis += ssdmax; continue; }
 			if (yks < 1 || yks >= Src.cols - 1) {dis += ssdmax; continue; }
 
-			if (100 < (int)mask.at<uchar>(xks, yks)) {dis += ssdmax; continue; }
+			//if (100 < (int)mask.at<uchar>(xks, yks)) {dis += ssdmax; continue; }
 
 			int xkt = xt + dx, ykt = yt + dy;
 			if (xkt < 1 || xkt >= Dst.rows - 1) {dis += ssdmax; continue; }
@@ -399,6 +401,8 @@ void Inpaint::Iteration(Mat& src, const Mat& mask, Mat& offset, int iter)
 void Inpaint::Propagation(const Mat& src, Mat& offset, int row, int col, int dir, const Mat& mask)
 {
 	int xp, yp, dp;
+	dir %= 2;
+	if (0 == dir) dir = -1;
 
 	if (col - dir > 0 && col - dir < src.cols)
 	{
