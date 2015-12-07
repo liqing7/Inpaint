@@ -13,7 +13,7 @@ Inpaint::Inpaint(const Mat& src, const Mat& mask)
 	}
 
 	srcImg.push_back(src.clone());
-	maskImg.push_back(mask.clone());
+	maskImg_SourceToTarget.push_back(mask.clone());
 	offsetMap_SourceToTarget.push_back(Mat(src.size(), CV_32FC3, Scalar::all(0)));
 	offsetMap_TargetToSource.push_back(Mat(src.size(), CV_32FC3, Scalar::all(0)));
 	BulidSimilarity();
@@ -21,6 +21,14 @@ Inpaint::Inpaint(const Mat& src, const Mat& mask)
 	BuildPyr();
 }
 
+void BulidMask(const Mat& mask)
+{
+	bool** mask = new bool*[mask.rows];
+	for (int i = 1; i < mask.rows; i++)
+
+
+
+}
 void Inpaint::BulidSimilarity()
 {
 	similarity = new double[MaxDis + 1];
@@ -132,7 +140,7 @@ void Inpaint::RandomizeOffsetMap(const Mat& src, const Mat& target, const Mat& m
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (100 >= (int)mask.at<uchar>(i, j))
+			if (150 >= (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
 				offset.at<Vec3f>(i, j)[0] = i;
@@ -144,7 +152,7 @@ void Inpaint::RandomizeOffsetMap(const Mat& src, const Mat& target, const Mat& m
 				int r_col = rand() % src.cols;
 				int r_row = rand() % src.rows;
 
-				while (100 < (int)mask.at<uchar>(r_row, r_col))
+				while (150 < (int)mask.at<uchar>(r_row, r_col))
 				{
 					r_col = rand() % src.cols;
 					r_row = rand() % src.rows;
@@ -169,7 +177,7 @@ void Inpaint::InitOffsetMap(const Mat& src, const Mat& target, const Mat& mask, 
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (100 >= (int)mask.at<uchar>(i, j))
+			if (150 >= (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
 				offset.at<Vec3f>(i, j)[0] = i;
@@ -193,7 +201,7 @@ void Inpaint::InitOffsetDis(const Mat& src, const Mat& target, const Mat& mask, 
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (100 >= (int)mask.at<uchar>(i, j))
+			if (150 >= (int)mask.at<uchar>(i, j))
 			{
 				// Need not search
 				offset.at<Vec3f>(i, j)[0] = i;
@@ -276,7 +284,7 @@ void Inpaint::VoteForTarget(const Mat& src, const Mat& tar, const Mat& mask, con
 					if (xt < 0 || xt >= src.rows) continue;
 					if (yt < 0 || yt >= src.cols) continue;
 
-					if (100 < (int)mask.at<uchar>(xs, ys)) continue;
+					if (150 < (int)mask.at<uchar>(xs, ys)) continue;
 
 				//	if (upscale)
 				//	{
@@ -384,13 +392,13 @@ int Inpaint::Distance(const Mat &Src, int xs, int ys, const Mat &Dst, int xt, in
 			if (xks < 1 || xks >= Src.rows - 1) {dis += ssdmax; continue; }
 			if (yks < 1 || yks >= Src.cols - 1) {dis += ssdmax; continue; }
 
-			if (100 < (int)mask.at<uchar>(xks, yks)) {dis += ssdmax; continue; }
+			if (150 < (int)mask.at<uchar>(xks, yks)) {dis += ssdmax; continue; }
 
 			int xkt = xt + dx, ykt = yt + dy;
 			if (xkt < 1 || xkt >= Dst.rows - 1) {dis += ssdmax; continue; }
 			if (ykt < 1 || ykt >= Dst.cols - 1) {dis += ssdmax; continue; }
 
-			if (100 < (int)mask.at<uchar>(xkt, ykt)) {dis += ssdmax; continue; }
+			if (150 < (int)mask.at<uchar>(xkt, ykt)) {dis += ssdmax; continue; }
 			// SSD distance between pixels (each value is in [0,255^2])
 			long long ssd = 0;
 			for(int band = 0; band < 3; band++) {
@@ -422,7 +430,7 @@ void Inpaint::Iteration(Mat& src, Mat& target, const Mat& mask, Mat& offset, int
 	for (int i = 0; i < src.rows; i++)
 		for (int j = 0; j < src.cols; j++)
 		{
-			if (100 < (int)mask.at<uchar>(i, j))
+			if (150 < (int)mask.at<uchar>(i, j))
 			{
 				Propagation(src, target, offset, i, j, iter, mask);
 				RandomSearch(src, target, offset, i, j, mask);

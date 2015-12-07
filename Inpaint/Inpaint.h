@@ -58,7 +58,8 @@ private :
 	double*** NewVoteArray(int rows, int cols);
 
 	vector<Mat> srcImg;
-	vector<Mat> maskImg;
+	vector<Mat> maskImg_SourceToTarget;
+	vector<Mat> maskImg_TargetToSource;
 	vector<Mat> offsetMap_TargetToSource;
 	vector<Mat> offsetMap_SourceToTarget;
 	Mat targetImg;
