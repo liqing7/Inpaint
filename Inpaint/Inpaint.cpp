@@ -163,7 +163,7 @@ void Inpaint::Run()
 
 	Mat tempImg;
 	int index = srcImg.size() - 1;
-	for (; maskImageEnd >= maskImageBg; maskImageEnd--, offsetMapEnd_SourceToTarget--, offsetMapEnd_TargetToSource--, maskItEnd--, index--)
+	for (; maskImageEnd >= maskImageBg+1; maskImageEnd--, offsetMapEnd_SourceToTarget--, offsetMapEnd_TargetToSource--, maskItEnd--, index--)
 	{
 		MaskedImage src = *maskImageEnd;
 		
@@ -325,8 +325,8 @@ void Inpaint::InitOffsetDis(const MaskedImage& src, const MaskedImage& target, M
 
 void Inpaint::ExpectationMaximization(MaskedImage& src, MaskedImage& target, Mat& offset_SourceToTarget, Mat& offset_TargetToSource, int level)
 {
-	int iterEM = 1 + 2 * level;
-	int iterNNF = 1 + level;
+	int iterEM = 1 + 2 * (level-1);
+	int iterNNF = min(7, 1 + level);
 
 	MaskedImage newtarget;
 	for (int i = 0; i < iterEM; i++)
@@ -422,10 +422,34 @@ void Inpaint::VoteForTarget(const MaskedImage& src, const MaskedImage& tar, cons
 
 					if (upscale)
 					{
-						WeightedCopy(newsrc, 2*xs, 2*ys, vote, 2*xt, 2*yt, w);
-						WeightedCopy(newsrc, 2 * xs + 1, 2 * ys, vote, 2 * xt + 1, 2 * yt, w);
-						WeightedCopy(newsrc, 2 * xs, 2 * ys + 1, vote, 2 * xt, 2 * yt + 1, w);
-						WeightedCopy(newsrc, 2 * xs + 1, 2 * ys + 1, vote, 2 * xt + 1, 2 * yt + 1, w);
+						int nxt = 2 * xt + 1, nxs = 2 * xs + 1, nyt = 2 * yt + 1, nys = 2 * ys + 1;
+						if (2 * xt + 1 >= newsrc.row)
+						{
+							nxt--;
+						}
+						if (2 * xs + 1 >= newsrc.row)
+						{
+							nxs--;
+						}
+						if (2 * ys + 1 >= newsrc.col)
+						{
+							nys--;
+						}
+						if (2 * yt + 1 >= newsrc.col)
+						{
+							nyt--;
+						}
+						
+						{
+							WeightedCopy(newsrc, 2 * xs, 2 * ys, vote, 2 * xt, 2 * yt, w);
+							//WeightedCopy(newsrc, 2 * xs + 1, 2 * ys, vote, 2 * xt + 1, 2 * yt, w);
+							WeightedCopy(newsrc, nxs, 2 * ys, vote, nxt, 2 * yt, w);
+							//WeightedCopy(newsrc, 2 * xs, 2 * ys + 1, vote, 2 * xt, 2 * yt + 1, w);
+							WeightedCopy(newsrc, 2 * xs, nys, vote, 2 * xt, nyt, w);
+							//WeightedCopy(newsrc, 2 * xs + 1, 2 * ys + 1, vote, 2 * xt + 1, 2 * yt + 1, w);
+							WeightedCopy(newsrc, nxs, nys, vote, nxt, nyt, w);
+						}
+						
 					}
 					else 
 						WeightedCopy(newsrc, xs, ys, vote, xt, yt, w);
