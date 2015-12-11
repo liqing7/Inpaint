@@ -14,7 +14,7 @@ void Inpaint::PrintMaskValue()
 	for (int i = 0; i < 7; i++)
 	{
 		cout << "Mask " << i << endl;
-		cout << maskImg[i] << endl;
+		//cout << maskImg[i] << endl;
 	}
 }
 
@@ -26,4 +26,14 @@ void Inpaint::PrintMaskValue(const Mat& mask)
 void Inpaint::PrintOffsetMap(const Mat& offset)
 {
 	cout << offset << endl;
+}
+
+void Inpaint::PrintMaskValue(const Mask& mask)
+{
+	for (int i = 0; i < mask.row; i++)
+	{
+		for (int j = 0; j < mask.col; j++)
+			cout << mask.mask[i][j] << ' ';
+		cout << endl;
+	}
 }
